@@ -117,7 +117,7 @@ All endpoints expect and return JSON.
 
 ## UML Sequence Diagram: Requesting and Receiving Data
 
-Below is a UML sequence diagram illustrating the flow for a typical authenticated request (e.g., getting a user's movie lists):
+Below is a UML sequence diagram illustrating the flow for a typical authenticated request (e.g., getting a user's movie lists), **including function names**:
 
 ```mermaid
 sequenceDiagram
@@ -125,22 +125,22 @@ sequenceDiagram
     participant Backend
     participant MongoDB
 
-    Client->>Backend: POST /login (username, password)
-    Backend->>MongoDB: Find user by username
+    Client->>Backend: POST /login (authenticate_user)
+    Backend->>MongoDB: find_one({"username": username})
     MongoDB-->>Backend: User document (with hashed password)
     Backend-->>Client: Set session, return success JSON
 
-    Client->>Backend: GET /lists (with session cookie)
-    Backend->>MongoDB: Find lists for user
+    Client->>Backend: GET /lists (get_lists)
+    Backend->>MongoDB: find_one({"username": session['username']}, {"lists": 1})
     MongoDB-->>Backend: Lists data
     Backend-->>Client: JSON response with lists
 ```
 
 **Explanation:**
 
-- The client first authenticates by sending credentials to the backend.
+- The client first authenticates by sending credentials to the backend (`authenticate_user`).
 - The backend verifies credentials with MongoDB, sets a session, and returns a success response.
 - For subsequent requests (like getting lists), the client sends the session cookie.
-- The backend checks the session, queries MongoDB for the requested data, and returns the result as JSON.
+- The backend checks the session, calls `get_lists`, queries MongoDB for the requested data, and returns the result as JSON.
 
 ---
